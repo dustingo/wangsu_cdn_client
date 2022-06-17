@@ -1,0 +1,8 @@
+[global]
+ak = ""  #账号ak
+sk = ""  #账号sk
+endpoint = "https://s3-cn-east-1.wcsapi.com" #endpoint地址,可在对象存储的概览中获取
+region = "cn-east-1" #同上
+bucket = ""          # 分配的bucket名称
+urlaction = "delete" # url刷新策略 default、delete、expire
+diraction = "expire" # dir刷新策略 delete、expire
