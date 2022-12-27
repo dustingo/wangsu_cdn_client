@@ -1,8 +1,10 @@
 package client
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 	"sync"
 	"wangsu_cdn_client/ccm"
@@ -74,6 +76,20 @@ func PutObject(objectKey string) {
 	input := &wos.PutObjectInput{}
 	input.Bucket = config.Sconfig.Global.Bucket
 	input.Key = objectKey
+	file, err := os.Open(objectKey)
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			level.Error(config.Logger).Log("close file error", err)
+			return
+		}
+	}()
+	if err != nil {
+		level.Error(config.Logger).Log("open file failed", err)
+		return
+	}
+	r := bufio.NewReader(file)
+	input.Body = r
 	output, err := WosClient.PutObject(input)
 	if err != nil {
 		if wosErr, ok := err.(wos.WosError); ok {
@@ -114,7 +130,21 @@ func PutAllLObject(dir string) {
 			input := &wos.PutObjectInput{}
 			input.Bucket = config.Sconfig.Global.Bucket
 			input.Key = key
-			_, err := WosClient.PutObject(input)
+			file, err := os.Open(key)
+			defer func() {
+				err := file.Close()
+				if err != nil {
+					level.Error(config.Logger).Log("close file error", err)
+					return
+				}
+			}()
+			if err != nil {
+				level.Error(config.Logger).Log("open file failed", err)
+				return
+			}
+			r := bufio.NewReader(file)
+			input.Body = r
+			_, err = WosClient.PutObject(input)
 			if err != nil {
 				level.Error(config.Logger).Log("put object error", err)
 				return
